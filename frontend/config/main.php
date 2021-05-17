@@ -44,9 +44,7 @@ return [
             'rules' => [
             ],
         ],*/
-        'SubmitTask'=>[
-            'class'=>'frontend\components\SubmitTask',
-        ], 
+
         'DisplayTasks'=>[
             'class'=>'frontend\components\DisplayTasks',
         ],

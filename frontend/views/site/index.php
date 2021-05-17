@@ -8,11 +8,9 @@ use yii\data\SqlDataProvider;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-//$this->title = 'My To-do List';
-//echo $this->render( 'task', array( 'data' => $model ) );
 
 
-//FORM MODEL///////////////////////////
+//TASK FORM MODEL///////////////////////////
 ?>
 <?php $form=ActiveForm::begin();?>
 <?=$form->field($model,'task');?>
@@ -20,11 +18,9 @@ use yii\widgets\ActiveForm;
 <?php $form = ActiveForm::end(); ?>
 
 <?php
+///////////////////////////////////////////////
 //////////////COMPONENTS///////////////////////
 yii::$app->DisplayTasks->getTasks();   //DISPLAY GET TASK COMPONENT
 
-//yii::$app->SubmitTask->addTask();   //DISPLAY GET TASK COMPONENT
-//$url = Yii::$app->homeUrl;
-//echo $url;
 /////////////////////////////
   ?>

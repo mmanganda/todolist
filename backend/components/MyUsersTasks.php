@@ -13,9 +13,8 @@ class MyUsersTasks extends Component{
 	
     //  USERS DATA
   
-    public function getUsers(){
+public function getUsers(){
 $sql = "SELECT COUNT(task),email,username FROM mytasks GROUP BY email";
-
 
 $sqlProvider = new SqlDataProvider([
             'sql' => $sql,

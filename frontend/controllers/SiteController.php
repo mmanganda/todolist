@@ -262,25 +262,16 @@ class SiteController extends Controller
         ]);
     }
 
-    public function actionIndextest(){
-       // $tasks=  yii::$app->DisplayTasks->getTasks();   //DISPLAY GET TASK COMPONENT
-      //  $tasks1=  yii::$app->backend->components->getUsers->getTasks();   //DISPLAY GET TASK COMPONENT
-        // yii::$app->SubmitTask->addTask();   //DISPLAY GET TASK COMPONENT
-     //   echo $tasks;
-      //  echo $tasks1;
-        return $this->render('index');
-   //return $this->render('index',['model' => $model]);
-
-   }
  
+ //HOME CONTROLLER
     public function actionIndex()
     {  
-      //  if(isset(Yii::$app->session['user'])){
         if(Yii::$app->user->identity){
         $sql_date = date('Y-m-d H:i:s',strtotime(date("Y/m/d") ));
         $email = Yii::$app->user->identity->email;
         $username = Yii::$app->user->identity->username;
 
+ //NEW TASK FORM CONTROLLER  
         $model =new TaskForm();
         if ($model -> load(Yii::$app->request->post())&& $model->validate()) {
             Yii::$app->db->createCommand()->insert('mytasks', [
@@ -289,37 +280,25 @@ class SiteController extends Controller
                 'email'=>$email,
                 'date'=>$sql_date,
                 'username'=>$username,
-              //  'age' => 30,
             ])->execute();
-          //  return $this->goHome();
-     //     return $this->render('taskform',['model' => $model]);
+      
 
         }else{ 
             $model =new TaskForm();
         }
+        $model =new TaskForm(); //RESET FORM AFTER SUBMIT
+
         return $this->render('index',['model' => $model]);
 
  }else{
- //   return $this->render('login');
     return Yii::$app->response->redirect('/todolistapp/frontend/web/index.php?r=site%2Flogin');
-  //$login = actionLogin();
-  //return $login;
-
+ 
  }
 } 
 public function actionUpdate()
 {
     return $this->render('update');
 }
-/* public function init()
-{
-    if(!isset(Yii::$app->session['user']))
-    {
-        parent::init();
-     //   $this->redirect('/todolistapp/frontend/web/index.php?r=site%2Flogin');
-    //    return Yii::$app->response->redirect('/todolistapp/frontend/web/index.php?r=site%2Flogin');
-    $this->render('login');
-    }
-} */
+
 
 }

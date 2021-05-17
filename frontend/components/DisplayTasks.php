@@ -9,112 +9,61 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\data\SqlDataProvider;
 use yii\widgets\ActiveForm;
+use yii\helpers\Url;
+
 
 class DisplayTasks extends Component{
     public $content;
 
 
-    //  SUBMIT TASK
-function get_alltasks(){
-    $sql = "SELECT * FROM mytasks WHERE email=$email";
-    $sqlProvider = new SqlDataProvider([
-        'sql' => $sql,
-    ]);
-    }
-    
-    function delete_task(){
-        $id = $_GET['id'];
-        $myCommand =  Yii::$app->db->createCommand()
-                                   ->delete('mytasks','id='.$id);
-        $myCommand->execute();
-        get_alltasks();
-    
-    
-         }
-    
-    function update_status($selected_row,$status){
-    $id=$selected_row;
-    try{  
-    $myCommand =  Yii::$app->db->createCommand()
-                               ->update('mytasks',['status'=>$status],'id='.$id);
-    $myCommand->execute();
-    } catch (Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
-    }
-    finally{
-    //get_alltasks();
-    //$sqlProvider.refresh();
-    $sql = "SELECT * FROM mytasks";
-    
-    $sqlProvider = new SqlDataProvider([
-        'sql' => $sql,
-    ]);
-    echo"updated";
-    //header('Location:index.php');
-    header("refresh: 1");
-    }
-     }
-    
-    
+  
+//GET  TASKS   
 public function getTasks(){
 
-$email = Yii::$app->user->identity->email;
-
-$sql = "SELECT * FROM mytasks WHERE email='{$email}'";
+    $email = Yii::$app->user->identity->email;
+    $sql = "SELECT * FROM mytasks WHERE email='{$email}'";        
+    $sqlProvider = new SqlDataProvider([
+            'sql' => $sql,
+        ]);
     
-$sqlProvider = new SqlDataProvider([
-        'sql' => $sql,
-    ]);
-    
-    
+//DISPLAY TASKS    
 ?>
 <?=Html::beginForm('','post');?>
-
 <?= GridView::widget([
         'dataProvider' => $sqlProvider,
         'columns' =>[
             ['class' => 'yii\grid\SerialColumn',
               'header'=>'No:' ,
-            //  'label' =>'No:',
-            ], // <-- here
-            
+            ],
+            ['attribute' =>'date',
+           'label' =>'DATE'],
             ['attribute' =>'id',
-            'label' =>'id'],
+            'label' =>'ID'],
 
             ['attribute' =>'email',
-            'label' =>'email'],
+            'label' =>'EMAIL'],
 
             ['attribute' =>'username',
-            'label' =>'username'],           
-           // 'COUNT(task)',
+            'label' =>'USERNAME'],           
            
            ['attribute' =>'task',
-           'label' =>'task'],
-
-           ['attribute' =>'date',
-           'label' =>'date'],
-
+           'label' =>'TASK'],
+           
            ['attribute' =>'status',
-            'label' =>'status'],
+            'label' =>'STATUS'],
 
            [
             'attribute' => 'update status',
-            'label' =>'update status',
+            'label' =>'CHANGE STATUS',
             'value' => function($model){
                   $id=$model['id'];
                   $myid=strval($id);
                   $name='updatestatus';
-              //   return  Html::beginForm(['order/update', 'id' => $id], 'post', ['enctype' => 'multipart/form-data']) ;
                  return Html::dropDownList( $myid,'',[null=>'Select','open'=>'Open','doing'=>'Doing','done'=>'Done'],['name'=>'drop']);
                
                 },
             'format' => 'raw',
-           // 'filter'    => [ "open"=>"Open", "doing"=>"doing", "done"=>"done" ],
-          /*   'value' => function ($data) {
-                return $data->column_name;
-            } */
-        ],
-          // 'status',
+                ],
            [
             'class' => 'yii\grid\ActionColumn',
              'template' => '{update} {delete}',
@@ -122,56 +71,104 @@ $sqlProvider = new SqlDataProvider([
                 'update' => function ($url, $model, $key) {
                     $url='index.php?statusupdate&id='.$model['id'].'&status='.$model['status'];
                     $row=array();
-                   // $row[]=$key;
                    $id= $model['id'];
                    $myid=strval($id);
 
-                   // $url=value-status;
-                    // return $model->status === 'editable' ? Html::a('Update', $url) : '';
-                    return Html::submitButton('submit',['class'=>'btn btn-success','name'=>'row['.$myid.']']);
-                //  $url='index.php?update&id='.$model['id'].'&&status='.$model['status'];
-
-                //  return $model? Html::a('update', $url) : '';
+                   return Html::submitButton('<span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span>',['class'=>'btn btn-success','name'=>'row['.$myid.']']);
 
                  }, 
                  'delete' => function ($url, $model, $key) {
                     $url='index.php?delete&id='.$model['id'];
-                    // return $model->status === 'editable' ? Html::a('Update', $url) : '';
-                    return $model? Html::a('delete', $url) : '';
+                    return $model? Html::a('<span class="glyphicon glyphicon glyphicon-trash" aria-hidden="true"></span>', $url) : '';
                  }, 
              
               ] 
-            // you may configure additional properties here
         ],
         ]
     ]);
 
-
-    ?>      
-    <?=Html::endForm();?>
+?>      
+<?=Html::endForm();?>
     
-    <?php
-    if(isset($_POST["row"])){
+<?php
+//GET SELECTED ROW TO UPDATE
+if(isset($_POST["row"])){
         $index = $_POST['row'];
-
 $selected_row =  key($index);
-echo $selected_row;
+//echo $selected_row;
 $myselected_row =strval($selected_row);
+
 if(isset($_POST[$selected_row])){
-    echo'hi';
     $status = $_POST[$selected_row];
 
-echo 'row:'.$selected_row.'status:'.$status;
+//echo 'row:'.$selected_row.'status:'.$status;
 if($status){
 update_status($selected_row,$status);
 }
 }
     }
 
+
 if(isset($_GET["delete"])){
      $id = $_GET['id'];
-     echo 'delete'.$id;
+    // echo 'delete'.$id;
      delete_task();  
-        }    ?>
-<?php }} ?>
+        }    
+ }}
+
+#DELETE TASK
+function delete_task(){
+    $id = $_GET['id'];
+    $myCommand =  Yii::$app->db->createCommand()
+                               ->delete('mytasks','id='.$id);
+    $myCommand->execute();
+    get_alltasks();   
+     }
+
+#UPDATE TASK    
+function update_status($selected_row,$status){
+$id=$selected_row;
+try{  
+$myCommand =  Yii::$app->db->createCommand()
+                           ->update('mytasks',['status'=>$status],'id='.$id);
+$myCommand->execute();
+} catch (Exception $e) {
+    echo 'Caught exception: ',  $e->getMessage(), "\n";
+}
+finally{
+$sql = "SELECT * FROM mytasks";    
+$sqlProvider = new SqlDataProvider([
+    'sql' => $sql,
+]);
+   //REFRESH VIEW
+    header("refresh: 1");
+}
+ }
+
+//UPDATE VIEW TASKS
+function get_alltasks(){
+    try{
+    $email = Yii::$app->user->identity->email;
+    }
+    catch (Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+    }
+    finally{
+    $sql = "SELECT * FROM mytasks WHERE email=$email";
+    $sqlProvider = new SqlDataProvider([
+        'sql' => $sql,
+    ]);
+   
+
+    $relativeHomeUrl = Url::home();
+    echo $relativeHomeUrl;
+    echo Url::to($relativeHomeUrl);
+    Yii::$app->response->redirect($relativeHomeUrl);
+
+   // $controller=Yii::$app->getController();
+ //   Yii::$app->response->redirect('/todolistapp/frontend/web/index.php?r=site%2Flogin');
+  
+    }
+    }
+?>
 
